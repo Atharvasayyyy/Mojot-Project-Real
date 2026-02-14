@@ -17,10 +17,10 @@ import {
   CircularProgress
 } from '@mui/material';
 import {
-  FavoriteTwoTone,
-  TrendingUpTwoTone,
-  AssignmentTwoTone,
-  AlertTwoTone
+  Favorite,
+  TrendingUp,
+  Assignment,
+  Warning
 } from '@mui/icons-material';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import axios from 'axios';
@@ -144,7 +144,7 @@ export default function StudentDashboard() {
                       {stats.avgEngagement}%
                     </Typography>
                   </Box>
-                  <TrendingUpTwoTone sx={{ fontSize: 40, opacity: 0.5 }} />
+                  <TrendingUp sx={{ fontSize: 40, opacity: 0.5 }} />
                 </Box>
               </CardContent>
             </Card>
@@ -162,7 +162,7 @@ export default function StudentDashboard() {
                       {stats.avgStress}%
                     </Typography>
                   </Box>
-                  <AlertTwoTone sx={{ fontSize: 40, opacity: 0.5 }} />
+                  <Warning sx={{ fontSize: 40, opacity: 0.5 }} />
                 </Box>
               </CardContent>
             </Card>
@@ -180,7 +180,7 @@ export default function StudentDashboard() {
                       {stats.totalSessions}
                     </Typography>
                   </Box>
-                  <AssignmentTwoTone sx={{ fontSize: 40, opacity: 0.5 }} />
+                  <Assignment sx={{ fontSize: 40, opacity: 0.5 }} />
                 </Box>
               </CardContent>
             </Card>
@@ -198,7 +198,7 @@ export default function StudentDashboard() {
                       {Math.floor(stats.todayDuration / 60)}h
                     </Typography>
                   </Box>
-                  <FavoriteTwoTone sx={{ fontSize: 40, opacity: 0.5 }} />
+                  <Favorite sx={{ fontSize: 40, opacity: 0.5 }} />
                 </Box>
               </CardContent>
             </Card>

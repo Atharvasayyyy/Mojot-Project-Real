@@ -10,7 +10,8 @@ const SessionSchema = new mongoose.Schema({
   },
   deviceId: {
     type: String,
-    required: true
+    required: false,
+    default: null
   },
   teacherId: {
     type: mongoose.Schema.Types.ObjectId,

@@ -9,9 +9,14 @@ router.post('/start', auth, async (req, res) => {
   try {
     const { deviceId, activity, sessionType, sessionName } = req.body;
 
+    // Validate activity is provided
+    if (!activity) {
+      return res.status(400).json({ success: false, message: 'Activity is required' });
+    }
+
     const session = new Session({
       userId: req.userId,
-      deviceId,
+      deviceId: deviceId || null,
       activity,
       sessionType: sessionType || 'classroom',
       sessionName: sessionName || activity,
@@ -32,8 +37,8 @@ router.post('/start', auth, async (req, res) => {
   }
 });
 
-// POST - End session
-router.post('/:sessionId/end', auth, async (req, res) => {
+// POST - End session (must come before /:sessionId route)
+router.post('/end/:sessionId', auth, async (req, res) => {
   try {
     const session = await Session.findById(req.params.sessionId);
     if (!session || session.userId.toString() !== req.userId) {
@@ -106,7 +111,7 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// GET - Session details
+// GET - Session details (generic ID matcher - must be last)
 router.get('/:sessionId', auth, async (req, res) => {
   try {
     const session = await Session.findById(req.params.sessionId);

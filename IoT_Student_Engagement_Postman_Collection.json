@@ -1,0 +1,868 @@
+{
+  "info": {
+    "name": "IoT Student Engagement System - Complete API Collection",
+    "description": "Complete API collection for testing IoT Student Engagement System with ML predictions",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "BACKEND_URL",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "ML_URL",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "AUTH_TOKEN",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "STUDENT_ID",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "SESSION_ID",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Checks",
+      "item": [
+        {
+          "name": "Backend Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/health",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "ML Service Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ML_URL}}/health",
+              "host": ["{{ML_URL}}"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "ML Model Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ML_URL}}/model-info",
+              "host": ["{{ML_URL}}"],
+              "path": ["model-info"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Authentication",
+      "item": [
+        {
+          "name": "Register Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('AUTH_TOKEN', jsonData.token);",
+                  "    pm.environment.set('STUDENT_ID', jsonData.user._id);",
+                  "    console.log('Token and Student ID saved!');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Atharva\",\n  \"lastName\": \"Student\",\n  \"email\": \"atharva.student@test.com\",\n  \"password\": \"Test@1234\",\n  \"userType\": \"student\",\n  \"phone\": \"+919876543210\",\n  \"grade\": \"10\",\n  \"school\": \"Test High School\",\n  \"dateOfBirth\": \"2008-05-15\"\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/auth/register",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Parent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Shreya\",\n  \"lastName\": \"Parent\",\n  \"email\": \"shreya.parent@test.com\",\n  \"password\": \"Parent@1234\",\n  \"userType\": \"parent\",\n  \"phone\": \"+919876543210\",\n  \"school\": \"Test High School\"\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/auth/register",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Register Teacher",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Rakesh\",\n  \"lastName\": \"Sharma\",\n  \"email\": \"sharma.teacher@test.com\",\n  \"password\": \"Teacher@1234\",\n  \"userType\": \"teacher\",\n  \"phone\": \"+919876543211\",\n  \"school\": \"Test High School\"\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/auth/register",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('AUTH_TOKEN', jsonData.token);",
+                  "    console.log('Token updated!');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"atharva.student@test.com\",\n  \"password\": \"Test@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/auth/login",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/auth/me",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. User Management",
+      "item": [
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/users/profile",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update User Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Atharva Updated\",\n  \"phone\": \"+919999999999\",\n  \"bio\": \"IoT enthusiast and tech lover\"\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/users/profile",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Get Students List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/users/students?grade=10&section=A",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "users", "students"],
+              "query": [
+                {
+                  "key": "grade",
+                  "value": "10"
+                },
+                {
+                  "key": "section",
+                  "value": "A"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Session Management",
+      "item": [
+        {
+          "name": "Create Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set('SESSION_ID', jsonData.session._id);",
+                  "    console.log('Session ID saved!');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device001\",\n  \"activity\": \"reading\",\n  \"sessionType\": \"classroom\",\n  \"sessionName\": \"Reading Session\"\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sessions/start",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sessions", "start"]
+            }
+          }
+        },
+        {
+          "name": "Get All Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sessions",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sessions"]
+            }
+          }
+        },
+        {
+          "name": "Get Session by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sessions/{{SESSION_ID}}",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sessions", "{{SESSION_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "End Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sessions/end/{{SESSION_ID}}",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sessions", "end", "{{SESSION_ID}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Sensor Data",
+      "item": [
+        {
+          "name": "Record Sensor Data - Normal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session\": \"{{SESSION_ID}}\",\n  \"heartRate\": 78,\n  \"hrvRmssd\": 45.2,\n  \"bloodOxygen\": 98,\n  \"motionLevel\": 3.5,\n  \"restlessnessIndex\": 2.1\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sensor-data",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sensor-data"]
+            }
+          }
+        },
+        {
+          "name": "Record Sensor Data - High Engagement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session\": \"{{SESSION_ID}}\",\n  \"heartRate\": 75,\n  \"hrvRmssd\": 50.5,\n  \"bloodOxygen\": 99,\n  \"motionLevel\": 2.0,\n  \"restlessnessIndex\": 1.5\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sensor-data",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sensor-data"]
+            }
+          }
+        },
+        {
+          "name": "Record Sensor Data - High Stress",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session\": \"{{SESSION_ID}}\",\n  \"heartRate\": 110,\n  \"hrvRmssd\": 15.0,\n  \"bloodOxygen\": 94,\n  \"motionLevel\": 7.5,\n  \"restlessnessIndex\": 8.5\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sensor-data",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sensor-data"]
+            }
+          }
+        },
+        {
+          "name": "Record Sensor Data - Sports Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session\": \"{{SESSION_ID}}\",\n  \"heartRate\": 120,\n  \"hrvRmssd\": 20.0,\n  \"bloodOxygen\": 95,\n  \"motionLevel\": 9.0,\n  \"restlessnessIndex\": 2.0\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sensor-data",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sensor-data"]
+            }
+          }
+        },
+        {
+          "name": "Record Sensor Data - Coding Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session\": \"{{SESSION_ID}}\",\n  \"heartRate\": 70,\n  \"hrvRmssd\": 55.0,\n  \"bloodOxygen\": 98,\n  \"motionLevel\": 1.5,\n  \"restlessnessIndex\": 1.0\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sensor-data",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sensor-data"]
+            }
+          }
+        },
+        {
+          "name": "Get Session Sensor Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sensor-data/session/{{SESSION_ID}}?limit=50",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sensor-data", "session", "{{SESSION_ID}}"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Latest Sensor Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sensor-data/latest/{{STUDENT_ID}}",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sensor-data", "latest", "{{STUDENT_ID}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Predictions",
+      "item": [
+        {
+          "name": "Get Prediction - High Engagement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session\": \"{{SESSION_ID}}\",\n  \"sensorData\": {\n    \"heartRate\": 75,\n    \"hrvRmssd\": 50.5,\n    \"bloodOxygen\": 99,\n    \"motionLevel\": 2.0,\n    \"restlessnessIndex\": 1.5\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/predictions",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "predictions"]
+            }
+          }
+        },
+        {
+          "name": "Get Prediction - High Stress",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"session\": \"{{SESSION_ID}}\",\n  \"sensorData\": {\n    \"heartRate\": 110,\n    \"hrvRmssd\": 15.0,\n    \"bloodOxygen\": 94,\n    \"motionLevel\": 7.5,\n    \"restlessnessIndex\": 8.5\n  }\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/predictions",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "predictions"]
+            }
+          }
+        },
+        {
+          "name": "Get Student Predictions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/predictions/student/{{STUDENT_ID}}?limit=20",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "predictions", "student", "{{STUDENT_ID}}"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Session Predictions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/predictions/session/{{SESSION_ID}}",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "predictions", "session", "{{SESSION_ID}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Analytics",
+      "item": [
+        {
+          "name": "Get Student Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/analytics/student/{{STUDENT_ID}}",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "analytics", "student", "{{STUDENT_ID}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Student Trends",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/analytics/trends/{{STUDENT_ID}}?period=7d&metric=engagement",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "analytics", "trends", "{{STUDENT_ID}}"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "7d"
+                },
+                {
+                  "key": "metric",
+                  "value": "engagement"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Alerts",
+      "item": [
+        {
+          "name": "Get All Alerts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/alerts?status=active&limit=20",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "alerts"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Student Alerts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/alerts/student/{{STUDENT_ID}}?status=active",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "alerts", "student", "{{STUDENT_ID}}"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. ML Model Direct",
+      "item": [
+        {
+          "name": "ML Predict - High Engagement Low Stress",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 75,\n  \"hrv_rmssd\": 50.5,\n  \"blood_oxygen\": 99,\n  \"motion_level\": 2.0,\n  \"restlessness_index\": 1.5\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            }
+          }
+        },
+        {
+          "name": "ML Predict - Low Engagement High Stress",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 110,\n  \"hrv_rmssd\": 15.0,\n  \"blood_oxygen\": 94,\n  \"motion_level\": 7.5,\n  \"restlessness_index\": 8.5\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            }
+          }
+        },
+        {
+          "name": "ML Predict - Sports Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 120,\n  \"hrv_rmssd\": 20.0,\n  \"blood_oxygen\": 95,\n  \"motion_level\": 9.0,\n  \"restlessness_index\": 2.0\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            }
+          }
+        },
+        {
+          "name": "ML Predict - Coding Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 70,\n  \"hrv_rmssd\": 55.0,\n  \"blood_oxygen\": 98,\n  \"motion_level\": 1.5,\n  \"restlessness_index\": 1.0\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            }
+          }
+        },
+        {
+          "name": "ML Predict - Gaming Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 85,\n  \"hrv_rmssd\": 35.0,\n  \"blood_oxygen\": 97,\n  \"motion_level\": 4.5,\n  \"restlessness_index\": 5.0\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
