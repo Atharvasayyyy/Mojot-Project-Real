@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose');
 const SensorData = require('../models/SensorData');
 const Session = require('../models/Session');
 const auth = require('../middleware/auth');
@@ -10,6 +11,9 @@ router.post('/', auth, async (req, res) => {
   try {
     const { deviceId, heartRate, hrv, bloodOxygen, acceleration, gyroscope, sessionId } = req.body;
 
+    // Auto-generate deviceId if not provided
+    const actualDeviceId = deviceId || `DEVICE-${req.userId}-${Date.now()}`;
+
     // Calculate motion level
     const motionLevel = Math.min(100, Math.sqrt(
       Math.pow(acceleration?.x || 0, 2) +
@@ -19,7 +23,7 @@ router.post('/', auth, async (req, res) => {
 
     const sensorData = new SensorData({
       userId: req.userId,
-      deviceId,
+      deviceId: actualDeviceId,
       sessionId,
       heartRate: {
         value: heartRate,
@@ -150,8 +154,15 @@ router.post('/arduino/data', async (req, res) => {
 // GET - Retrieve sensor data
 router.get('/:sessionId', auth, async (req, res) => {
   try {
+    // Validate and convert sessionId to ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.sessionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid sessionId format' });
+    }
+
+    const sessionId = mongoose.Types.ObjectId(req.params.sessionId);
+
     const data = await SensorData.find({
-      sessionId: req.params.sessionId,
+      sessionId: sessionId,
       userId: req.userId
     }).sort({ timestamp: -1 }).limit(100);
 
@@ -164,7 +175,13 @@ router.get('/:sessionId', auth, async (req, res) => {
 // GET - Session statistics
 router.get('/stats/:sessionId', auth, async (req, res) => {
   try {
-    const stats = await SensorData.getSessionStats(req.params.sessionId);
+    // Validate and convert sessionId to ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.sessionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid sessionId format' });
+    }
+
+    const sessionId = mongoose.Types.ObjectId(req.params.sessionId);
+    const stats = await SensorData.getSessionStats(sessionId);
     res.json({ success: true, stats: stats[0] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
