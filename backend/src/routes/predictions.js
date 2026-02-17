@@ -5,6 +5,47 @@ const Session = require('../models/Session');
 const Prediction = require('../models/Prediction');
 const auth = require('../middleware/auth');
 
+// ========== SPECIFIC ROUTES (MUST COME FIRST) ==========
+
+// GET - Hobby insights
+router.get('/hobbies/insights', auth, async (req, res) => {
+  try {
+    const hobbyInsights = await Prediction.aggregate([
+      {
+        $match: {
+          userId: mongoose.Types.ObjectId(req.userId)
+        }
+      },
+      {
+        $group: {
+          _id: '$predictions.predictedHobby.hobby',
+          count: { $sum: 1 },
+          avgConfidence: { $avg: '$predictions.predictedHobby.confidence' }
+        }
+      },
+      { $sort: { count: -1 } },
+      { $limit: 10 }
+    ]);
+
+    res.json({ success: true, hobbies: hobbyInsights });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// GET - Latest predictions
+router.get('/latest', auth, async (req, res) => {
+  try {
+    const predictions = await Prediction.find({
+      userId: req.userId
+    }).sort({ createdAt: -1 }).limit(10);
+
+    res.json({ success: true, predictions });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 // GET - Get predictions for session
 router.get('/session/:sessionId', auth, async (req, res) => {
   try {
@@ -30,18 +71,7 @@ router.get('/session/:sessionId', auth, async (req, res) => {
   }
 });
 
-// GET - Latest predictions
-router.get('/latest', auth, async (req, res) => {
-  try {
-    const predictions = await Prediction.find({
-      userId: req.userId
-    }).sort({ createdAt: -1 }).limit(10);
-
-    res.json({ success: true, predictions });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+// ========== GENERIC ROUTES (MUST COME LAST) ==========
 
 // POST - Feedback on prediction
 router.post('/:predictionId/feedback', auth, async (req, res) => {
@@ -73,32 +103,6 @@ router.post('/:predictionId/feedback', auth, async (req, res) => {
       message: 'Feedback recorded',
       prediction
     });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// GET - Hobby insights
-router.get('/hobbies/insights', auth, async (req, res) => {
-  try {
-    const hobbyInsights = await Prediction.aggregate([
-      {
-        $match: {
-          userId: require('mongoose').Types.ObjectId(req.userId)
-        }
-      },
-      {
-        $group: {
-          _id: '$predictions.predictedHobby.hobby',
-          count: { $sum: 1 },
-          avgConfidence: { $avg: '$predictions.predictedHobby.confidence' }
-        }
-      },
-      { $sort: { count: -1 } },
-      { $limit: 10 }
-    ]);
-
-    res.json({ success: true, hobbies: hobbyInsights });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
