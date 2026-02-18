@@ -1,0 +1,378 @@
+{
+  "info": {
+    "name": "IoT ML Model Testing - Complete API Collection",
+    "description": "API collection for testing ML Model predictions for student engagement, stress detection, and hobby detection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "ML_URL",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "BACKEND_URL",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🤖 ML Model Health & Info",
+      "item": [
+        {
+          "name": "1. ML Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ML_URL}}/health",
+              "host": ["{{ML_URL}}"],
+              "path": ["health"]
+            },
+            "description": "Check if ML model API is running and healthy"
+          },
+          "response": []
+        },
+        {
+          "name": "2. API Docs (Swagger)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ML_URL}}/docs",
+              "host": ["{{ML_URL}}"],
+              "path": ["docs"]
+            },
+            "description": "Access OpenAPI/Swagger documentation"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🧠 ML Predictions - Test Cases",
+      "item": [
+        {
+          "name": "TEST 1: Normal Engaged Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 72,\n  \"hrv_rmssd\": 45.5,\n  \"blood_oxygen\": 97,\n  \"motion_level\": 5.2,\n  \"restlessness_index\": 0.08\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            },
+            "description": "Normal, engaged student sensor data\n\nExpected: High engagement, Normal stress, Relaxed"
+          },
+          "response": []
+        },
+        {
+          "name": "TEST 2: Stressed Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 105,\n  \"hrv_rmssd\": 18.3,\n  \"blood_oxygen\": 94,\n  \"motion_level\": 12.8,\n  \"restlessness_index\": 0.45\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            },
+            "description": "Stressed student sensor data\n\nCharacteristics:\n- Elevated heart rate (105 bpm)\n- Low HRV (18.3 ms)\n- High motion and restlessness\n- Low blood oxygen\n\nExpected: Medium engagement, High stress"
+          },
+          "response": []
+        },
+        {
+          "name": "TEST 3: Disengaged/Relaxed Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 58,\n  \"hrv_rmssd\": 62.1,\n  \"blood_oxygen\": 98,\n  \"motion_level\": 1.2,\n  \"restlessness_index\": 0.02\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            },
+            "description": "Disengaged or very relaxed student\n\nCharacteristics:\n- Low heart rate (58 bpm)\n- Very high HRV (62.1 ms)\n- Very low motion and restlessness\n- High blood oxygen\n\nExpected: Low/Medium engagement, Relaxed stress level"
+          },
+          "response": []
+        },
+        {
+          "name": "TEST 4: Hyperactive Student",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 95,\n  \"hrv_rmssd\": 35.2,\n  \"blood_oxygen\": 96,\n  \"motion_level\": 45.8,\n  \"restlessness_index\": 2.1\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            },
+            "description": "Hyperactive student with high motion\n\nCharacteristics:\n- Elevated heart rate\n- Moderate HRV\n- Very high motion level\n- High restlessness\n\nExpected: High engagement, Normal/Moderate stress"
+          },
+          "response": []
+        },
+        {
+          "name": "TEST 5: Extreme High Values",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 200,\n  \"hrv_rmssd\": 150,\n  \"blood_oxygen\": 100,\n  \"motion_level\": 50,\n  \"restlessness_index\": 3.0\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            },
+            "description": "Edge case: Extreme high values\n\nTests model's ability to handle boundary conditions"
+          },
+          "response": []
+        },
+        {
+          "name": "TEST 6: Extreme Low Values",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 30,\n  \"hrv_rmssd\": 5,\n  \"blood_oxygen\": 80,\n  \"motion_level\": 0,\n  \"restlessness_index\": 0\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            },
+            "description": "Edge case: Extreme low values\n\nTests model's ability to handle boundary conditions"
+          },
+          "response": []
+        },
+        {
+          "name": "TEST 7: All Zeros",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 0,\n  \"hrv_rmssd\": 0,\n  \"blood_oxygen\": 0,\n  \"motion_level\": 0,\n  \"restlessness_index\": 0\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/predict",
+              "host": ["{{ML_URL}}"],
+              "path": ["predict"]
+            },
+            "description": "Edge case: All zero values\n\nTests model's robustness with invalid sensor data"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📊 ML Model Training",
+      "item": [
+        {
+          "name": "Train All Models",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_type\": \"all\"\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/train",
+              "host": ["{{ML_URL}}"],
+              "path": ["train"]
+            },
+            "description": "Train all ML models (runs in background)\n\nModel types: all, engagement, hobby, stress"
+          },
+          "response": []
+        },
+        {
+          "name": "Train Engagement Model Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_type\": \"engagement\"\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/train",
+              "host": ["{{ML_URL}}"],
+              "path": ["train"]
+            },
+            "description": "Train only the engagement prediction model"
+          },
+          "response": []
+        },
+        {
+          "name": "Train Stress Model Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_type\": \"stress\"\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/train",
+              "host": ["{{ML_URL}}"],
+              "path": ["train"]
+            },
+            "description": "Train only the stress detection model"
+          },
+          "response": []
+        },
+        {
+          "name": "Train Hobby Model Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model_type\": \"hobby\"\n}"
+            },
+            "url": {
+              "raw": "{{ML_URL}}/train",
+              "host": ["{{ML_URL}}"],
+              "path": ["train"]
+            },
+            "description": "Train only the hobby detection model"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔗 Backend Integration",
+      "item": [
+        {
+          "name": "Backend Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/health",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Check if backend is running"
+          },
+          "response": []
+        },
+        {
+          "name": "Send Arduino Data to Backend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sessionId\": \"S001\",\n  \"timestamp\": 25041,\n  \"heartRate\": 72,\n  \"hrvRmssd\": 45.5,\n  \"spo2\": 97,\n  \"motionLevel\": 10.23,\n  \"restlessnessIndex\": 0.009\n}"
+            },
+            "url": {
+              "raw": "{{BACKEND_URL}}/api/sensor-data/arduino/data",
+              "host": ["{{BACKEND_URL}}"],
+              "path": ["api", "sensor-data", "arduino", "data"]
+            },
+            "description": "Send Arduino sensor data directly to backend\n\nThis endpoint accepts the exact format that Arduino sends"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📋 Testing Guide",
+      "item": [
+        {
+          "name": "README - How to Use",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8000/docs",
+              "host": ["localhost"],
+              "path": ["docs"]
+            },
+            "description": "# ML Model Testing Guide\n\n## Setup\n1. Ensure ML Model is running on port 8000\n   ```\n   python -m uvicorn main:app --host 0.0.0.0 --port 8000\n   ```\n\n2. Ensure Backend is running on port 5000\n   ```\n   npm run dev\n   ```\n\n## Test Sequence\n\n### Step 1: Health Checks\n- [ ] ML Health Check\n- [ ] Backend Health Check\n\n### Step 2: Predictions\n- [ ] TEST 1: Normal Engaged Student\n- [ ] TEST 2: Stressed Student\n- [ ] TEST 3: Disengaged Student\n- [ ] TEST 4: Hyperactive Student\n- [ ] TEST 5-7: Edge Cases\n\n### Step 3: Model Training\n- [ ] Train All Models\n\n### Step 4: Integration\n- [ ] Send Arduino Data to Backend\n\n## Expected Responses\n\n**Prediction Response:**\n```json\n{\n  \"engagement\": {\n    \"level\": \"high\",\n    \"confidence\": 0.87\n  },\n  \"stress\": {\n    \"level\": \"normal\",\n    \"confidence\": 1.0\n  },\n  \"hobby\": {\n    \"activity\": \"gaming\",\n    \"confidence\": 0.92\n  },\n  \"timestamp\": \"2026-02-18T20:59:30.123Z\"\n}\n```\n\n## Sensor Data Ranges\n\n| Sensor | Normal Range | Stressed | Disengaged |\n|--------|--------------|----------|------------|\n| Heart Rate | 60-80 bpm | >100 bpm | <60 bpm |\n| HRV RMSSD | 40-50 ms | <30 ms | >60 ms |\n| Blood Oxygen | 95-99% | <94% | >98% |\n| Motion Level | 5-20 | >30 | 0-2 |\n| Restlessness | 0.05-0.15 | >0.4 | <0.05 |\n\n## Troubleshooting\n\n### ML Model returns 500 error\n- Models not trained: Run `python train_models.py`\n- Restart ML server: Kill and restart uvicorn\n\n### Cannot connect to ML URL\n- Ensure port 8000 is not blocked\n- Check firewall settings\n- Verify uvicorn is running\n\n### Backend returns 404\n- Ensure backend is running on port 5000\n- Check API endpoint paths\n"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

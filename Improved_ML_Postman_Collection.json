@@ -1,0 +1,349 @@
+{
+  "info": {
+    "name": "🧠 IoT Student State Classifier API",
+    "description": "Complete ML API testing - From database to predictions\nStates: Relaxed, Engaged, Stressed, Bored",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "BACKEND_URL",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "ML_URL",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "AUTH_TOKEN",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "SESSION_ID",
+      "value": "6995e222b6522e5dc25a5817",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set('AUTH_TOKEN', jsonData.token);",
+                  "    console.log('✅ Token saved:', jsonData.token.substring(0, 20) + '...');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{BACKEND_URL}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@engage.dev\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🧠 ML Service Status",
+      "item": [
+        {
+          "name": "ML API Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ML_URL}}/health"
+          }
+        },
+        {
+          "name": "Backend to ML Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": "{{BACKEND_URL}}/api/ml/status"
+          }
+        },
+        {
+          "name": "Get Model Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": "{{BACKEND_URL}}/api/ml/model-info"
+          }
+        },
+        {
+          "name": "Get Available States",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ML_URL}}/states"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎯 Direct ML Predictions",
+      "item": [
+        {
+          "name": "Test: Engaged Student",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{ML_URL}}/predict",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 75,\n  \"hrv_rmssd\": 45,\n  \"blood_oxygen\": 97,\n  \"motion_level\": 8,\n  \"restlessness_index\": 0.12\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Test: Stressed Student",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{ML_URL}}/predict",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 105,\n  \"hrv_rmssd\": 22,\n  \"blood_oxygen\": 95,\n  \"motion_level\": 15,\n  \"restlessness_index\": 0.65\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Test: Relaxed Student",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{ML_URL}}/predict",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 62,\n  \"hrv_rmssd\": 65,\n  \"blood_oxygen\": 98,\n  \"motion_level\": 3,\n  \"restlessness_index\": 0.04\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Test: Bored Student",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{ML_URL}}/predict",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 68,\n  \"hrv_rmssd\": 52,\n  \"blood_oxygen\": 97,\n  \"motion_level\": 38,\n  \"restlessness_index\": 0.38\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Database Predictions",
+      "item": [
+        {
+          "name": "Predict from Session (Individual)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": "{{BACKEND_URL}}/api/ml/predict/session/{{SESSION_ID}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analyzeSession\": false,\n  \"limit\": 29\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Analyze Full Session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": "{{BACKEND_URL}}/api/ml/predict/session/{{SESSION_ID}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analyzeSession\": true,\n  \"limit\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Single Manual Prediction",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": "{{BACKEND_URL}}/api/ml/predict/single",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"heart_rate\": 85,\n  \"hrv_rmssd\": 35,\n  \"blood_oxygen\": 96,\n  \"motion_level\": 12,\n  \"restlessness_index\": 0.45\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Saved Predictions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": "{{BACKEND_URL}}/api/ml/predictions/{{SESSION_ID}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔬 Test Scenarios",
+      "item": [
+        {
+          "name": "Get Test Scenarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ML_URL}}/test/scenarios"
+          }
+        },
+        {
+          "name": "Batch Prediction",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{ML_URL}}/predict-batch",
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"heart_rate\": 75,\n    \"hrv_rmssd\": 45,\n    \"blood_oxygen\": 97,\n    \"motion_level\": 8,\n    \"restlessness_index\": 0.12\n  },\n  {\n    \"heart_rate\": 105,\n    \"hrv_rmssd\": 22,\n    \"blood_oxygen\": 95,\n    \"motion_level\": 15,\n    \"restlessness_index\": 0.65\n  },\n  {\n    \"heart_rate\": 62,\n    \"hrv_rmssd\": 65,\n    \"blood_oxygen\": 98,\n    \"motion_level\": 3,\n    \"restlessness_index\": 0.04\n  }\n]",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Session Analysis (Direct)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{ML_URL}}/analyze-session",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"sensor_data\": [\n    {\n      \"heart_rate\": 75,\n      \"hrv_rmssd\": 45,\n      \"blood_oxygen\": 97,\n      \"motion_level\": 8,\n      \"restlessness_index\": 0.12\n    },\n    {\n      \"heart_rate\": 78,\n      \"hrv_rmssd\": 42,\n      \"blood_oxygen\": 97,\n      \"motion_level\": 10,\n      \"restlessness_index\": 0.15\n    },\n    {\n      \"heart_rate\": 105,\n      \"hrv_rmssd\": 22,\n      \"blood_oxygen\": 95,\n      \"motion_level\": 15,\n      \"restlessness_index\": 0.65\n    },\n    {\n      \"heart_rate\": 110,\n      \"hrv_rmssd\": 18,\n      \"blood_oxygen\": 94,\n      \"motion_level\": 17,\n      \"restlessness_index\": 0.75\n    },\n    {\n      \"heart_rate\": 62,\n      \"hrv_rmssd\": 65,\n      \"blood_oxygen\": 98,\n      \"motion_level\": 3,\n      \"restlessness_index\": 0.04\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📈 Data & Sessions",
+      "item": [
+        {
+          "name": "Get Session Data",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": "{{BACKEND_URL}}/api/sensor-data/{{SESSION_ID}}"
+          }
+        },
+        {
+          "name": "Get Session Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{AUTH_TOKEN}}"
+              }
+            ],
+            "url": "{{BACKEND_URL}}/api/sessions/{{SESSION_ID}}"
+          }
+        }
+      ]
+    }
+  ]
+}

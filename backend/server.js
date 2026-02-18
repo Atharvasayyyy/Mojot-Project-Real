@@ -42,6 +42,7 @@ app.use('/api/analytics', require('./src/routes/analytics'));
 app.use('/api/predictions', require('./src/routes/predictions'));
 app.use('/api/alerts', require('./src/routes/alerts'));
 app.use('/api/health', require('./src/routes/health'));
+app.use('/api/ml', require('./src/routes/ml')); // 🧠 ML Predictions from DB
 
 // ======================== ERROR HANDLING ========================
 app.use((err, req, res, next) => {

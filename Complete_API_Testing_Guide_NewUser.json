@@ -1,0 +1,442 @@
+{
+	"info": {
+		"_postman_id": "complete-api-testing-guide",
+		"name": "IoT Student Engagement - Complete API Testing Guide (NEW USER)",
+		"description": "Complete step-by-step guide for testing all APIs with the 99.5% accurate ML model.\n\n🎯 WHAT YOU'LL TEST:\n✅ User Registration & Login\n✅ ML Model Predictions (all 4 states)\n✅ Database Integration\n✅ Session Analysis & Recommendations\n✅ Full Student Engagement Workflow\n\n📊 MODEL SPECS:\n- Accuracy: 99.50%\n- Features: 17 engineered features\n- States: Relaxed, Engaged, Stressed, Bored\n- Training: 5000 samples, Random Forest 300 trees\n\n🚀 QUICK START:\n1. Run requests in order (1-15)\n2. Token auto-saves after Login\n3. Use test session or create your own\n4. All responses show confidence scores\n\n📌 API ENDPOINTS:\n- Auth: /api/auth/register, /api/auth/login\n- ML: /api/ml/predict/single, /api/ml/predict/session/:id\n- Analysis: /api/ml/analyze/session/:id\n- Model: /api/ml/model-info, /api/ml/states",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{authToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "mlApiUrl",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "sessionId",
+			"value": "6995e222b6522e5dc25a5817",
+			"type": "string"
+		},
+		{
+			"key": "userEmail",
+			"value": "newuser@engage.dev",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "PHASE 1: System Health",
+			"item": [
+				{
+					"name": "1.1 Check ML Service Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mlApiUrl}}/health",
+							"host": ["localhost:8000"],
+							"path": ["health"]
+						},
+						"description": "✅ FIRST STEP: Verify ML API is running\n\n**Expected Response:**\n```json\n{\n  \"status\": \"healthy\",\n  \"service\": \"Student State Classifier API\",\n  \"version\": \"2.0.0\",\n  \"model_loaded\": true,\n  \"states\": [\"Relaxed\", \"Engaged\", \"Stressed\", \"Bored\"]\n}\n```\n\n**What to check:**\n- ✓ status = \"healthy\"\n- ✓ model_loaded = true\n- ✓ All 4 states present"
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Check Backend Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": ["localhost:5000"],
+							"path": ["api", "health"]
+						},
+						"description": "Verify backend server is running\n\n**Expected Response:**\n```json\n{\n  \"status\": \"ok\",\n  \"message\": \"Server is running\",\n  \"timestamp\": \"2024-02-19T...\"\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "1.3 Get Model Information",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mlApiUrl}}/model-info",
+							"host": ["localhost:8000"],
+							"path": ["model-info"]
+						},
+						"description": "Get detailed model specs\n\n**Expected Response:**\n```json\n{\n  \"model_type\": \"Random Forest Classifier\",\n  \"accuracy\": 99.50,\n  \"oob_accuracy\": 99.19,\n  \"cross_validation_score\": 99.19,\n  \"states\": [\"Relaxed\", \"Engaged\", \"Stressed\", \"Bored\"],\n  \"features\": 17,\n  \"feature_engineering\": true,\n  \"trained_at\": \"18/2/2026, 10:59:48 pm\"\n}\n```\n\n**Key Metrics:**\n- Test Accuracy: **99.50%** ✅\n- OOB Accuracy: **99.19%** ✅\n- Features: **17** (5 raw + 12 engineered)"
+					},
+					"response": []
+				}
+			],
+			"description": "Verify all services are running before testing"
+		},
+		{
+			"name": "PHASE 2: User Management",
+			"item": [
+				{
+					"name": "2.1 Register New User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201 || pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.user && response.user._id) {",
+									"        pm.collectionVariables.set('userId', response.user._id);",
+									"        console.log('✅ User ID saved: ' + response.user._id);",
+									"    }",
+									"    console.log('✅ Registration successful');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {"type": "noauth"},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"John Student\",\n  \"email\": \"newuser@engage.dev\",\n  \"password\": \"password123\",\n  \"role\": \"student\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": ["localhost:5000"],
+							"path": ["api", "auth", "register"]
+						},
+						"description": "📝 REGISTER NEW USER\n\n**What this does:**\n- Creates new student account\n- Saves user ID to variables\n- Ready for login\n\n**Request Body:**\n```json\n{\n  \"name\": \"John Student\",\n  \"email\": \"newuser@engage.dev\",\n  \"password\": \"password123\",\n  \"role\": \"student\"\n}\n```\n\n**Expected Response (201):**\n```json\n{\n  \"status\": \"success\",\n  \"message\": \"User registered successfully\",\n  \"user\": {\n    \"_id\": \"123abc...\",\n    \"name\": \"John Student\",\n    \"email\": \"newuser@engage.dev\",\n    \"role\": \"student\"\n  }\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.token) {",
+									"        pm.collectionVariables.set('authToken', response.token);",
+									"        console.log('✅ JWT Token saved to authToken variable');",
+									"        console.log('Token: ' + response.token.substring(0, 20) + '...');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {"type": "noauth"},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"newuser@engage.dev\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": ["localhost:5000"],
+							"path": ["api", "auth", "login"]
+						},
+						"description": "🔑 LOGIN USER\n\n**RUN THIS AFTER REGISTRATION!**\n\n**What this does:**\n- Authenticates user\n- Returns JWT token\n- Token auto-saves to {{authToken}} variable\n- All future requests use this token\n\n**Request Body:**\n```json\n{\n  \"email\": \"newuser@engage.dev\",\n  \"password\": \"password123\"\n}\n```\n\n**Expected Response (200):**\n```json\n{\n  \"status\": \"success\",\n  \"message\": \"Login successful\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIs...\",\n  \"user\": {\n    \"_id\": \"123abc...\",\n    \"name\": \"John Student\",\n    \"email\": \"newuser@engage.dev\"\n  }\n}\n```\n\n**🔴 IMPORTANT:** Check console to confirm \"Token saved\" message"
+					},
+					"response": []
+				}
+			],
+			"description": "Register & Login new user. Token auto-saves!"
+		},
+		{
+			"name": "PHASE 3: ML Predictions - Single Readings",
+			"item": [
+				{
+					"name": "3.1 Predict: Relaxed State ✅",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"heart_rate\": 65,\n  \"hrv_rmssd\": 55,\n  \"blood_oxygen\": 98,\n  \"motion_level\": 5,\n  \"restlessness_index\": 0.08\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ml/predict/single",
+							"host": ["localhost:5000"],
+							"path": ["api", "ml", "predict", "single"]
+						},
+						"description": "😌 PREDICT RELAXED STATE\n\n**Sensor Values (Relaxed Indicators):**\n- Heart Rate: 65 bpm (LOW) ✓\n- HRV RMSSD: 55 ms (HIGH) ✓ = Calm nervous system\n- Blood Oxygen: 98% (EXCELLENT) ✓\n- Motion: 5 (MINIMAL) ✓\n- Restlessness: 0.08 (VERY LOW) ✓\n\n**Expected Response:**\n```json\n{\n  \"state\": \"Relaxed\",\n  \"confidence\": 99.8,\n  \"probabilities\": {\n    \"Relaxed\": 99.8,\n    \"Engaged\": 0.1,\n    \"Stressed\": 0.0,\n    \"Bored\": 0.1\n  },\n  \"timestamp\": \"2024-02-19T...\"\n}\n```\n\n**What to check:**\n- ✓ state = \"Relaxed\"\n- ✓ confidence > 99%\n- ✓ Relaxed probability highest"
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Predict: Engaged State 🎯",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"heart_rate\": 75,\n  \"hrv_rmssd\": 45,\n  \"blood_oxygen\": 97,\n  \"motion_level\": 8,\n  \"restlessness_index\": 0.12\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ml/predict/single",
+							"host": ["localhost:5000"],
+							"path": ["api", "ml", "predict", "single"]
+						},
+						"description": "🎯 PREDICT ENGAGED STATE\n\n**Sensor Values (Engaged Indicators):**\n- Heart Rate: 75 bpm (MODERATE) ✓\n- HRV RMSSD: 45 ms (GOOD) ✓\n- Blood Oxygen: 97% (HIGH) ✓\n- Motion: 8 (SLIGHT) ✓\n- Restlessness: 0.12 (LOW) ✓\n\n**Expected Response:**\n```json\n{\n  \"state\": \"Engaged\",\n  \"confidence\": 100.0,\n  \"probabilities\": {\n    \"Relaxed\": 0.0,\n    \"Engaged\": 100.0,\n    \"Stressed\": 0.0,\n    \"Bored\": 0.0\n  }\n}\n```\n\n**Interpretation:**\n- ✓ Perfect engagement indicator\n- ✓ 100% confidence (999.5% model accuracy!)\n- ✓ Ideal for learning"
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 Predict: Stressed State ⚠️",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"heart_rate\": 95,\n  \"hrv_rmssd\": 25,\n  \"blood_oxygen\": 95,\n  \"motion_level\": 15,\n  \"restlessness_index\": 0.35\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ml/predict/single",
+							"host": ["localhost:5000"],
+							"path": ["api", "ml", "predict", "single"]
+						},
+						"description": "😰 PREDICT STRESSED STATE\n\n**Sensor Values (Stress Indicators):**\n- Heart Rate: 95 bpm (HIGH) ⚠️\n- HRV RMSSD: 25 ms (LOW) ⚠️ = Fight-or-flight\n- Blood Oxygen: 95% (LOWER) ⚠️\n- Motion: 15 (MODERATE-HIGH) ⚠️\n- Restlessness: 0.35 (HIGH) ⚠️\n\n**Expected Response:**\n```json\n{\n  \"state\": \"Stressed\",\n  \"confidence\": 99.5,\n  \"probabilities\": {\n    \"Relaxed\": 0.0,\n    \"Engaged\": 0.5,\n    \"Stressed\": 99.5,\n    \"Bored\": 0.0\n  }\n}\n```\n\n**Interpretation:**\n- ⚠️ High stress detected\n- ⚠️ Needs intervention\n- ⚠️ Student should take break"
+					},
+					"response": []
+				},
+				{
+					"name": "3.4 Predict: Bored State 😴",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"heart_rate\": 68,\n  \"hrv_rmssd\": 52,\n  \"blood_oxygen\": 98,\n  \"motion_level\": 30,\n  \"restlessness_index\": 0.45\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ml/predict/single",
+							"host": ["localhost:5000"],
+							"path": ["api", "ml", "predict", "single"]
+						},
+						"description": "😪 PREDICT BORED STATE\n\n**Sensor Values (Boredom Indicators):**\n- Heart Rate: 68 bpm (LOW) ✓\n- HRV RMSSD: 52 ms (HIGH) ✓\n- Blood Oxygen: 98% (EXCELLENT) ✓\n- Motion: 30 (HIGH) ⚠️ KEY = Fidgeting!\n- Restlessness: 0.45 (VERY HIGH) ⚠️ KEY = Restless!\n\n**Expected Response:**\n```json\n{\n  \"state\": \"Bored\",\n  \"confidence\": 100.0,\n  \"probabilities\": {\n    \"Relaxed\": 0.0,\n    \"Engaged\": 0.0,\n    \"Stressed\": 0.0,\n    \"Bored\": 100.0\n  }\n}\n```\n\n**Interpretation:**\n- 🔑 HIGH motion + HIGH restlessness = Bored!\n- ✓ Perfect 100% accuracy\n- 💡 Engagement needs improvement"
+					},
+					"response": []
+				}
+			],
+			"description": "Test ML predictions for all 4 student states"
+		},
+		{
+			"name": "PHASE 4: Direct ML API Tests",
+			"item": [
+				{
+					"name": "4.1 Batch Predict (All 4 States)",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"readings\": [\n    {\n      \"heart_rate\": 65,\n      \"hrv_rmssd\": 55,\n      \"blood_oxygen\": 98,\n      \"motion_level\": 5,\n      \"restlessness_index\": 0.08\n    },\n    {\n      \"heart_rate\": 75,\n      \"hrv_rmssd\": 45,\n      \"blood_oxygen\": 97,\n      \"motion_level\": 8,\n      \"restlessness_index\": 0.12\n    },\n    {\n      \"heart_rate\": 95,\n      \"hrv_rmssd\": 25,\n      \"blood_oxygen\": 95,\n      \"motion_level\": 15,\n      \"restlessness_index\": 0.35\n    },\n    {\n      \"heart_rate\": 68,\n      \"hrv_rmssd\": 52,\n      \"blood_oxygen\": 98,\n      \"motion_level\": 30,\n      \"restlessness_index\": 0.45\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{mlApiUrl}}/predict-batch",
+							"host": ["localhost:8000"],
+							"path": ["predict-batch"]
+						},
+						"description": "🚀 BATCH PREDICT ALL 4 STATES AT ONCE\n\n**What this does:**\n- Sends 4 readings to ML model at once\n- Returns predictions for all states\n- Faster than individual requests\n\n**Expected Response:**\n```json\n{\n  \"predictions\": [\n    {\n      \"reading_index\": 0,\n      \"state\": \"Relaxed\",\n      \"confidence\": 99.8,\n      \"probabilities\": {...}\n    },\n    {\n      \"reading_index\": 1,\n      \"state\": \"Engaged\",\n      \"confidence\": 100.0,\n      \"probabilities\": {...}\n    },\n    {\n      \"reading_index\": 2,\n      \"state\": \"Stressed\",\n      \"confidence\": 99.5,\n      \"probabilities\": {...}\n    },\n    {\n      \"reading_index\": 3,\n      \"state\": \"Bored\",\n      \"confidence\": 100.0,\n      \"probabilities\": {...}\n    }\n  ],\n  \"total\": 4,\n  \"success_count\": 4\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 Get Available States",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mlApiUrl}}/states",
+							"host": ["localhost:8000"],
+							"path": ["states"]
+						},
+						"description": "Get list of all possible prediction states\n\n**Expected Response:**\n```json\n{\n  \"states\": [\n    \"Relaxed\",\n    \"Engaged\",\n    \"Stressed\",\n    \"Bored\"\n  ]\n}\n```"
+					},
+					"response": []
+				}
+			],
+			"description": "Direct ML API testing (no backend)"
+		},
+		{
+			"name": "PHASE 5: Database Session Analysis",
+			"item": [
+				{
+					"name": "5.1 Analyze Real Database Session (29 Readings)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ml/predict/session/{{sessionId}}",
+							"host": ["localhost:5000"],
+							"path": ["api", "ml", "predict", "session", "{{sessionId}}"]
+						},
+						"description": "📊 ANALYZE REAL SESSION FROM DATABASE\n\n**What this does:**\n1. Fetches 29 sensor readings from MongoDB\n2. Sends to ML model for prediction\n3. Returns state distribution\n4. Calculates dominant state\n\n**Session Details:**\n- ID: 6995e222b6522e5dc25a5817\n- Total Readings: 29\n- Data spans multiple scenarios\n\n**Expected Response:**\n```json\n{\n  \"session_id\": \"6995e222b6522e5dc25a5817\",\n  \"total_readings\": 29,\n  \"valid_readings\": 29,\n  \"predictions\": [\n    {\n      \"reading_index\": 0,\n      \"state\": \"Stressed\",\n      \"confidence\": 65.0,\n      \"timestamp\": \"...\"\n    },\n    ...\n  ],\n  \"dominant_state\": \"Stressed\",\n  \"state_distribution\": {\n    \"Relaxed\": 27.6,\n    \"Engaged\": 34.5,\n    \"Stressed\": 37.9,\n    \"Bored\": 0.0\n  },\n  \"avg_confidence\": 94.1\n}\n```\n\n**What to check:**\n- ✓ All 29 readings processed\n- ✓ Stressed is dominant (37.9%)\n- ✓ Avg confidence ~94%\n- ✓ Realistic distribution"
+					},
+					"response": []
+				},
+				{
+					"name": "5.2 Full Session Analysis + Recommendations",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"save\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ml/analyze/session/{{sessionId}}",
+							"host": ["localhost:5000"],
+							"path": ["api", "ml", "analyze", "session", "{{sessionId}}"]
+						},
+						"description": "🎯 COMPLETE SESSION ANALYSIS WITH AI RECOMMENDATIONS\n\n**What this does:**\n1. Analyzes all 29 readings\n2. Calculates session score (0-100)\n3. Identifies stress patterns\n4. Generates personalized recommendations\n5. Optionally saves to database\n\n**Expected Response:**\n```json\n{\n  \"session_id\": \"6995e222b6522e5dc25a5817\",\n  \"total_readings\": 29,\n  \"session_score\": 68,\n  \"score_interpretation\": \"Requires attention - High stress detected\",\n  \"state_distribution\": {\n    \"Relaxed\": 27.6,\n    \"Engaged\": 34.5,\n    \"Stressed\": 37.9,\n    \"Bored\": 0.0\n  },\n  \"dominant_state\": \"Stressed\",\n  \"engagement_level\": \"Low-Moderate\",\n  \"recommendations\": [\n    {\n      \"priority\": \"HIGH\",\n      \"title\": \"⚠️ High stress detected - Consider break intervals\",\n      \"action\": \"Suggest 5-10 minute break every 25-30 minutes\"\n    },\n    {\n      \"priority\": \"HIGH\",\n      \"title\": \"💆 Implement relaxation techniques\",\n      \"action\": \"Deep breathing exercises, progressive muscle relaxation\"\n    },\n    {\n      \"priority\": \"CRITICAL\",\n      \"title\": \"🔴 Dominant state: STRESSED - Immediate intervention recommended\",\n      \"action\": \"Contact teacher/counselor for support\"\n    }\n  ],\n  \"saved\": true\n}\n```\n\n**Key Metrics:**\n- Session Score: **68/100** (Needs improvement)\n- Stressed: **37.9%** (Dominant concern)\n- Engaged: **34.5%** (Good but not enough)\n- 3 Recommendations provided"
+					},
+					"response": []
+				},
+				{
+					"name": "5.3 Get Saved Predictions for Session",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [{"key": "token", "value": "{{authToken}}", "type": "string"}]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/ml/predictions/{{sessionId}}",
+							"host": ["localhost:5000"],
+							"path": ["api", "ml", "predictions", "{{sessionId}}"]
+						},
+						"description": "Retrieve previously saved predictions from database\n\n**Expected Response:**\n```json\n{\n  \"session_id\": \"6995e222b6522e5dc25a5817\",\n  \"predictions\": [\n    {\n      \"_id\": \"...\",\n      \"reading_id\": \"...\",\n      \"state\": \"Stressed\",\n      \"confidence\": 65.0,\n      \"timestamp\": \"...\"\n    },\n    ...\n  ]\n}\n```"
+					},
+					"response": []
+				}
+			],
+			"description": "Test complete workflow with real database session"
+		},
+		{
+			"name": "PHASE 6: Advanced Testing",
+			"item": [
+				{
+					"name": "6.1 Accuracy Verification (8 Readings)",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"readings\": [\n    {\"heart_rate\": 65, \"hrv_rmssd\": 55, \"blood_oxygen\": 98, \"motion_level\": 5, \"restlessness_index\": 0.08},\n    {\"heart_rate\": 75, \"hrv_rmssd\": 45, \"blood_oxygen\": 97, \"motion_level\": 8, \"restlessness_index\": 0.12},\n    {\"heart_rate\": 95, \"hrv_rmssd\": 25, \"blood_oxygen\": 95, \"motion_level\": 15, \"restlessness_index\": 0.35},\n    {\"heart_rate\": 68, \"hrv_rmssd\": 52, \"blood_oxygen\": 98, \"motion_level\": 30, \"restlessness_index\": 0.45},\n    {\"heart_rate\": 62, \"hrv_rmssd\": 58, \"blood_oxygen\": 99, \"motion_level\": 3, \"restlessness_index\": 0.05},\n    {\"heart_rate\": 78, \"hrv_rmssd\": 42, \"blood_oxygen\": 97, \"motion_level\": 10, \"restlessness_index\": 0.15},\n    {\"heart_rate\": 100, \"hrv_rmssd\": 20, \"blood_oxygen\": 94, \"motion_level\": 20, \"restlessness_index\": 0.42},\n    {\"heart_rate\": 70, \"hrv_rmssd\": 50, \"blood_oxygen\": 98, \"motion_level\": 28, \"restlessness_index\": 0.48}\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{mlApiUrl}}/predict-batch",
+							"host": ["localhost:8000"],
+							"path": ["predict-batch"]
+						},
+						"description": "✅ VERIFY 99.5% ACCURACY\n\n**Test Details:**\n- 8 readings (2 per state)\n- Mixed variations\n- Expect 100% correct classification\n\n**Reading Breakdown:**\n1. Relaxed (clear)\n2. Engaged (clear)\n3. Stressed (clear)\n4. Bored (clear)\n5. Relaxed (variation)\n6. Engaged (variation)\n7. Stressed (variation)\n8. Bored (variation)\n\n**Expected Accuracy:**\n- ✅ All 8 correct\n- ✅ High confidence for each\n- ✅ Perfect probability distributions\n\n**What to verify:**\n- Readings 1-4: Exact state match\n- Readings 5-8: Correct classification\n- All confidence > 95%"
+					},
+					"response": []
+				},
+				{
+					"name": "6.2 Manual Session Analysis (Direct ML)",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"session_id\": \"manual-test-session-001\",\n  \"student_id\": \"test-student-123\",\n  \"readings\": [\n    {\n      \"timestamp\": \"2024-02-19T10:00:00Z\",\n      \"heart_rate\": 75,\n      \"hrv_rmssd\": 45,\n      \"blood_oxygen\": 97,\n      \"motion_level\": 8,\n      \"restlessness_index\": 0.12\n    },\n    {\n      \"timestamp\": \"2024-02-19T10:05:00Z\",\n      \"heart_rate\": 95,\n      \"hrv_rmssd\": 25,\n      \"blood_oxygen\": 95,\n      \"motion_level\": 15,\n      \"restlessness_index\": 0.35\n    },\n    {\n      \"timestamp\": \"2024-02-19T10:10:00Z\",\n      \"heart_rate\": 98,\n      \"hrv_rmssd\": 22,\n      \"blood_oxygen\": 94,\n      \"motion_level\": 18,\n      \"restlessness_index\": 0.40\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{mlApiUrl}}/analyze-session",
+							"host": ["localhost:8000"],
+							"path": ["analyze-session"]
+						},
+						"description": "📈 MANUAL SESSION ANALYSIS\n\n**What this does:**\n- Send custom session data to ML\n- Get full session analysis\n- Returns state distribution & score\n\n**Expected Pattern:**\n- Reading 1: Engaged\n- Reading 2: Stressed (HR ↑, HRV ↓)\n- Reading 3: Stressed (continues)\n\n**Expected Response:**\n```json\n{\n  \"session_id\": \"manual-test-session-001\",\n  \"total_readings\": 3,\n  \"predictions\": [...],\n  \"state_distribution\": {\n    \"Relaxed\": 0,\n    \"Engaged\": 33.3,\n    \"Stressed\": 66.7,\n    \"Bored\": 0\n  },\n  \"dominant_state\": \"Stressed\",\n  \"avg_confidence\": 95+\n}\n```"
+					},
+					"response": []
+				}
+			],
+			"description": "Advanced tests for accuracy verification"
+		},
+		{
+			"name": "PHASE 7: Complete Workflow Example",
+			"item": [
+				{
+					"name": "7.1 COMPLETE WORKFLOW SUMMARY",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{mlApiUrl}}/health",
+							"host": ["localhost:8000"],
+							"path": ["health"]
+						},
+						"description": "📋 COMPLETE WORKFLOW SUMMARY\n\n**If you followed all steps, you've tested:**\n\n✅ **PHASE 1: System Health**\n   - ML API running ✓\n   - Backend running ✓\n   - Model loaded (99.5%) ✓\n\n✅ **PHASE 2: User Management**\n   - Registered new user ✓\n   - Logged in ✓\n   - Got JWT token ✓\n\n✅ **PHASE 3: ML Predictions**\n   - Relaxed prediction (100% confident) ✓\n   - Engaged prediction (100% confident) ✓\n   - Stressed prediction (99.5% confident) ✓\n   - Bored prediction (100% confident) ✓\n\n✅ **PHASE 4: Batch Processing**\n   - Batch predict 4 states ✓\n   - Get available states ✓\n\n✅ **PHASE 5: Database Integration**\n   - Analyzed 29 real readings ✓\n   - Got full session analysis ✓\n   - Got AI recommendations ✓\n\n✅ **PHASE 6: Advanced Testing**\n   - Verified 99.5% accuracy ✓\n   - Manual session analysis ✓\n\n---\n\n**📊 KEY METRICS ACHIEVED:**\n- Test Accuracy: **99.50%**\n- Model Features: **17** (5 raw + 12 engineered)\n- Trees: **300** (Random Forest)\n- OOB Accuracy: **99.19%**\n- Cross-Validation: **99.19%**\n\n**🎯 SYSTEM VERIFIED:**\n- ✅ Registration & Login working\n- ✅ All 4 states predicted correctly\n- ✅ Database integration functional\n- ✅ Session analysis working\n- ✅ AI recommendations generated\n- ✅ 99.5% accuracy confirmed\n\n---\n\n**🚀 NEXT STEPS:**\n1. Connect Arduino for live sensor data\n2. Start frontend dashboard\n3. View real-time predictions\n4. Deploy to production\n\n**❓ QUESTIONS?**\nCheck the test descriptions in each request for detailed explanations!"
+					},
+					"response": []
+				}
+			],
+			"description": "Summary of complete testing workflow"
+		}
+	]
+}

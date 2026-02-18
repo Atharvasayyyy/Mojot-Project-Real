@@ -3,8 +3,28 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, List
 import os
-from model import ml_model
+from model import EngagementMLModel
 import asyncio
+from datetime import datetime
+
+# Initialize ML Model
+ml_model = EngagementMLModel(model_dir='models')
+
+# Load models if they exist
+if os.path.exists('models/engagement_model.pkl'):
+    import joblib
+    print("📦 Loading trained models...")
+    ml_model.engagement_model = joblib.load('models/engagement_model.pkl')
+    ml_model.stress_model = joblib.load('models/stress_model.pkl')
+    ml_model.hobby_model = joblib.load('models/hobby_model.pkl')
+    ml_model.scaler = joblib.load('models/scaler.pkl')
+    ml_model.label_encoders['engagement'] = joblib.load('models/engagement_encoder.pkl')
+    ml_model.label_encoders['stress'] = joblib.load('models/stress_encoder.pkl')
+    ml_model.label_encoders['hobby'] = joblib.load('models/hobby_encoder.pkl')
+    print("✅ Models loaded successfully!")
+else:
+    print("⚠️  Warning: Pre-trained models not found. Run train_models.py first.")
+
 
 app = FastAPI(
     title="IoT Engagement AI API",
